@@ -34,6 +34,7 @@ class HelloImpl final : public HelloService::Service {
     public:
      Status sayHelloAndSleep (ServerContext* context,ServerReaderWriter<Hello,Name>* stream) override {
         Name name;
+        cout<<"get request succ" << endl;
         while (stream->Read(&name))
         {
             names.push_back(name);
@@ -45,7 +46,7 @@ class HelloImpl final : public HelloService::Service {
             hello.set_hello("hello ");
             hello.set_name(n.name());
 
-            this_thread::sleep_for(std::chrono::milliseconds(1000));
+            // this_thread::sleep_for(std::chrono::milliseconds(1000));
 
             stream->Write(hello);
         }
@@ -57,7 +58,7 @@ class HelloImpl final : public HelloService::Service {
 
 void RunServer()
 {
-    string server_addr("0.0.0.0:50051");
+    string server_addr("0.0.0.0:50052");
     HelloImpl service;
     ServerBuilder builder;
     builder.AddListeningPort(server_addr,grpc::InsecureServerCredentials());

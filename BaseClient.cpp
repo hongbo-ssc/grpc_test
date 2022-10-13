@@ -34,29 +34,37 @@ public:
     void sendData()
     {
         ClientContext context;
-        std::shared_ptr<ClientReaderWriter<Name,Hello>> stream(stub_->getData(&context));
-        Name name;
-        name.set_name("thread 1");
-        stream->Write(name);
-        stream->WritesDone();
-        
-        Data recv_data;
-        while(stream->Read(&recv_data))
-        {
-            std::cout<<"data "<<recv_data.data()<<" send success"<<std::endl;
-        }
+        std::shared_ptr<ClientReaderWriter<Name,Hello>> stream(stub_->sayHelloAndSleep(&context));
 
         Status status=stream->Finish();
         if(!status.ok())
         {
-            std::cout<<"getData rpc failed"<<std::endl;
+            std::cout<<"getData rpc failed  " << status.error_message() <<std::endl;
         }
+        
+        Name name;
+        name.set_name("thread 1");
+        stream->Write(name);
+        stream->WritesDone();
+
+        cout << "write response"<<endl;
+        
+        Hello recv_data;
+        while(stream->Read(&recv_data))
+        {
+            std::cout<<"data "<< recv_data.hello() << "  " <<  recv_data.name() <<" send success"<<std::endl;
+        }
+
+        
     }
+
+private:
+    std::unique_ptr<HelloService::Stub> stub_;
 };
 
 int main(int argc,char** argv)
 {
-    ReduceClient client1(grpc::CreateChannel("localhost:50051",grpc::InsecureChannelCredentials()));
+    BaseClient client1(grpc::CreateChannel("0.0.0.0:50052",grpc::InsecureChannelCredentials()));
     client1.sendData();
     return 0;
 }
