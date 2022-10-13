@@ -1,0 +1,16 @@
+syntax="proto3";
+
+package hello;
+
+service HelloService {
+    rpc sayHelloAndSleep(stream Name) returns (stream Hello) {}
+}
+
+message Name {
+    string name = 1;
+}
+
+message Hello {
+    string hello = 1;
+    string name = 2;
+}
